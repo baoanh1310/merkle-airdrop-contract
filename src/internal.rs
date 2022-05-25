@@ -2,7 +2,7 @@ use crate::*;
 
 #[near_bindgen]
 impl Contract {
-    pub(crate) fn internal_add_campaign_to_account(&mut self, account_id: &AccountId) {
+    pub(crate) fn internal_add_campaign_to_account(&mut self, account_id: &AccountId) -> AirdropId {
         // insert new airdrop_id to spent_list_by_campaign
         let mut campaigns_set = self
             .campaigns_by_account
@@ -21,5 +21,16 @@ impl Contract {
         let empty_lookup_map = LookupMap::new(prefix);
         self.spent_list_by_campaign
             .insert(&airdrop_id, &empty_lookup_map);
+        airdrop_id
+    }
+
+    pub(crate) fn internal_check_issued_account(
+        &self,
+        airdrop_id: &AirdropId,
+        account_id: &AccountId,
+    ) -> bool {
+        let account_map = self.spent_list_by_campaign.get(airdrop_id).unwrap();
+        let is_issued = account_map.get(account_id).unwrap();
+        is_issued
     }
 }
