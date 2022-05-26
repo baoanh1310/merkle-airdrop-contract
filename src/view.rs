@@ -46,4 +46,8 @@ impl Contract {
     pub fn total_number_airdrop_campaigns(&self) -> U128 {
         U128(self.spent_list_by_campaign.len() as u128)
     }
+
+    pub fn get_owner_id(&self) -> String {
+        self.owner_id.to_string()
+    }
 }
