@@ -32,7 +32,7 @@ impl Contract {
             .collect()
     }
 
-    // number of campaigns by account
+    // number of campaigns were created by account
     pub fn number_airdrop_campaigns_by_account(&self, account_id: AccountId) -> U128 {
         let campaigns = self.campaigns_by_account.get(&account_id);
         let campaigns = if let Some(campaigns) = campaigns {
@@ -53,5 +53,9 @@ impl Contract {
 
     pub fn get_ft_contract_by_campaign(&self, airdrop_id: AirdropId) -> AccountId {
         AccountId::try_from(self.ft_contract_by_campaign.get(&airdrop_id).unwrap()).unwrap()
+    }
+
+    pub fn check_issued_account(&self, airdrop_id: AirdropId, account_id: AccountId) -> bool {
+        self.internal_check_issued_account(&airdrop_id, &account_id)
     }
 }

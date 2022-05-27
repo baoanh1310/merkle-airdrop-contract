@@ -41,7 +41,12 @@ impl Contract {
         if account_map.len() == 0 {
             return false;
         }
-        let is_issued = account_map.get(account_id).unwrap();
+        let is_issued = account_map.get(account_id);
+        let is_issued = if let Some(is_issued) = is_issued {
+            is_issued
+        } else {
+            false
+        };
         is_issued
     }
 

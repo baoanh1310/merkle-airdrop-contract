@@ -155,6 +155,7 @@ mod tests {
             accounts(5).to_string(),
             10000 as u128,
         );
+        // println!("{:?}", contract.airdrop_campaigns_by_account(accounts(1), Some(U128(0)), Some(10)));
         assert_eq!(contract.total_number_airdrop_campaigns(), U128(1));
         assert_eq!(
             contract.airdrop_merkle_root(1 as u128).unwrap(),
@@ -185,5 +186,7 @@ mod tests {
 
         assert_eq!(contract.total_number_airdrop_campaigns(), U128(1));
         contract.claim(1 as u128, get_other_sample_proof(), 20);
+        assert_eq!(contract.check_issued_account(1 as u128, accounts(1)), true);
+        assert_eq!(contract.check_issued_account(1 as u128, accounts(2)), false);
     }
 }
