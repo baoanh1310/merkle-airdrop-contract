@@ -1,14 +1,19 @@
+use hex;
+use near_contract_standards::fungible_token::metadata::FungibleTokenMetadata;
+use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
+use near_sdk::collections::{LookupMap, UnorderedMap, UnorderedSet};
+use near_sdk::json_types::U128;
+use near_sdk::serde::{Deserialize, Serialize};
+use near_sdk::{
+    env, ext_contract, near_bindgen, AccountId, Balance, Gas,
+    PanicOnDefault, Promise, PromiseResult,
+};
+use std::convert::TryFrom;
+
 use crate::ft_callback::*;
 use crate::internal::*;
 use crate::utils::*;
 use crate::view::*;
-use hex;
-use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::{LookupMap, UnorderedMap, UnorderedSet};
-use near_sdk::json_types::{Base64VecU8, U128};
-use near_sdk::serde::{Deserialize, Serialize};
-use near_sdk::{env, ext_contract, near_bindgen, AccountId, Balance, Gas, Promise, PromiseResult, PanicOnDefault};
-use std::convert::{TryFrom, TryInto};
 
 mod ft_callback;
 mod internal;
@@ -76,7 +81,7 @@ impl Contract {
 
         self.internal_add_account_to_claimed_list(&airdrop_id);
 
-        self.claim_token(airdrop_id, user_id, U128(amount));
+        // self.claim_token(airdrop_id, user_id, U128(amount));
     }
 }
 
