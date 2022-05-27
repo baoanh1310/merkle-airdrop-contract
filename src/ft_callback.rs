@@ -9,10 +9,6 @@ pub trait ExtSelf {
     fn callback_decimal(&self) -> u128;
 }
 
-pub trait ExtSelf {
-    fn callback_decimal(&self) -> u128;
-}
-
 #[ext_contract(ext_ft)]
 pub trait FungibleTokenCore {
     fn ft_transfer(&mut self, receiver_id: AccountId, amount: U128, memo: Option<String>);
@@ -26,16 +22,26 @@ pub trait FungibleTokenMeta {
 #[near_bindgen]
 impl Contract {
     pub fn claim_token(&self, airdrop_id: AirdropId, account_id: AccountId, amount: U128) {
-    	ext_ft_metadata::ft_metadata(
-            self.get_ft_contract_by_campaign(airdrop_id),
-            1,
-            GAS_FOR_FT_TRANSFER,
-        )
-        .then(ext_self::callback_decimal(
-            env::predecessor_account_id(),
-            0,
-            XCC_GAS,
-        ))
+        ext_ft_metadata::ext(self.get_ft_contract_by_campaign(airdrop_id))
+            .with_attached_deposit(1)
+            .with_static_gas(GAS_FOR_FT_TRANSFER)
+            .ft_metadata()
+            .then(
+                ext_self::ext(env::predecessor_account_id())
+                    .with_attached_deposit(0)
+                    .with_static_gas(XCC_GAS)
+                    .callback_decimal()
+            );
+    	// ext_ft_metadata::ft_metadata(
+        //     self.get_ft_contract_by_campaign(airdrop_id),
+        //     1,
+        //     GAS_FOR_FT_TRANSFER,
+        // )
+        // .then(ext_self::callback_decimal(
+        //     env::predecessor_account_id(),
+        //     0,
+        //     XCC_GAS,
+        // ))
         // ext_ft::ft_transfer(
         //     account_id.clone(),
         //     amount,
