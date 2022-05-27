@@ -4,7 +4,7 @@ const GAS_FOR_FT_TRANSFER: Gas = Gas(15_000_000_000_000);
 const XCC_GAS: Gas = Gas(20_000_000_000_000);
 
 #[ext_contract(ext_self)]
-trait ExtSelf {
+pub trait ExtSelf {
     fn callback_decimal(&self) -> u128;
 }
 
@@ -20,17 +20,36 @@ pub trait FungibleTokenMetadataProvider {
 
 #[near_bindgen]
 impl Contract {
-    pub fn get_ft_decimals(&self, airdrop_id: AirdropId) -> Promise {
-        ext_ft_metadata::ft_metadata(
-            self.get_ft_contract_by_campaign(airdrop_id),
-            1,
-            GAS_FOR_FT_TRANSFER,
-        )
-        .then(ext_self::callback_decimal(
-            env::predecessor_account_id(),
-            0,
-            XCC_GAS,
-        ))
+
+    pub fn claim_token(&self, airdrop_id: AirdropId, account_id: AccountId, amount: U128) {
+        ext_ft_metadata::ext(self.get_ft_contract_by_campaign(airdrop_id))
+            .with_attached_deposit(1)
+            .with_static_gas(GAS_FOR_FT_TRANSFER)
+            .ft_metadata()
+            .then(
+                ext_self::ext(env::predecessor_account_id())
+                    .with_attached_deposit(0)
+                    .with_static_gas(XCC_GAS)
+                    .callback_decimal()
+            );
+    	// ext_ft_metadata::ft_metadata(
+        //     self.get_ft_contract_by_campaign(airdrop_id),
+        //     1,
+        //     GAS_FOR_FT_TRANSFER,
+        // )
+        // .then(ext_self::callback_decimal(
+        //     env::predecessor_account_id(),
+        //     0,
+        //     XCC_GAS,
+        // ))
+        // ext_ft::ft_transfer(
+        //     account_id.clone(),
+        //     amount,
+        //     None,
+        //     self.get_ft_contract_by_campaign(airdrop_id),
+        //     1,
+        //     GAS_FOR_FT_TRANSFER,
+        // );
     }
 
     #[private]
