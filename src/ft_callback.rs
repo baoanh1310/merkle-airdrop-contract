@@ -4,6 +4,15 @@ use near_contract_standards::fungible_token::metadata::FungibleTokenMetadata;
 const GAS_FOR_FT_TRANSFER: Gas = Gas(15_000_000_000_000);
 const XCC_GAS: Gas = Gas(20_000_000_000_000);
 
+#[ext_contract(ext_self)]
+pub trait ExtSelf {
+    fn callback_decimal(&self) -> u128;
+}
+
+pub trait ExtSelf {
+    fn callback_decimal(&self) -> u128;
+}
+
 #[ext_contract(ext_ft)]
 pub trait FungibleTokenCore {
     fn ft_transfer(&mut self, receiver_id: AccountId, amount: U128, memo: Option<String>);
@@ -12,15 +21,6 @@ pub trait FungibleTokenCore {
 #[ext_contract(ext_ft_metadata)]
 pub trait FungibleTokenMeta {
 	fn ft_metadata(&self) -> FungibleTokenMetadata;
-}
-
-#[ext_contract(ext_self)]
-pub trait ExtSelf {
-    fn callback_decimal(&self) -> u128;
-}
-
-pub trait ExtSelf {
-    fn callback_decimal(&self) -> u128;
 }
 
 #[near_bindgen]
@@ -32,7 +32,7 @@ impl Contract {
             GAS_FOR_FT_TRANSFER,
         )
         .then(ext_self::callback_decimal(
-            env::current_account_id(),
+            env::predecessor_account_id(),
             0,
             XCC_GAS,
         ))
@@ -47,6 +47,7 @@ impl Contract {
     }
 }
 
+#[near_bindgen]
 impl ExtSelf for Contract {
 	#[private]
     fn callback_decimal(&self) -> u128 {
