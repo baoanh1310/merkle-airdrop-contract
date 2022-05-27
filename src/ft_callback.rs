@@ -1,7 +1,7 @@
 use crate::*;
 
 const GAS_FOR_FT_TRANSFER: Gas = Gas(15_000_000_000_000);
-const XCC_GAS: Gas = Gas(20_000_000_000_000);
+const XCC_GAS: Gas = Gas(2_000_000_000_000);
 
 #[ext_contract(ext_self)]
 pub trait ExtSelf {
