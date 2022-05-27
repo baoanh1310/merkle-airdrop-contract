@@ -92,4 +92,13 @@ impl Contract {
         account_map.insert(&user_id, &true);
         self.spent_list_by_campaign.insert(airdrop_id, &account_map);
     }
+
+    pub(crate) fn internal_add_ft_contract_to_campaign(
+        &mut self,
+        airdrop_id: &AirdropId,
+        ft_contract_id: &String,
+    ) {
+        self.ft_contract_by_campaign
+            .insert(airdrop_id, ft_contract_id);
+    }
 }

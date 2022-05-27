@@ -5,11 +5,12 @@ authors = ["Near friend <dataholicguy@gmail.com>"]
 edition = "2018"
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 near-sdk = "4.0.0-pre.4"
 hex = "0.4.3"
+near-contract-standards = "4.0.0-pre.4"
 
 [profile.release]
 codegen-units = 1

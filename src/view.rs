@@ -50,4 +50,8 @@ impl Contract {
     pub fn get_owner_id(&self) -> String {
         self.owner_id.to_string()
     }
+
+    pub fn get_ft_contract_by_campaign(&self, airdrop_id: AirdropId) -> AccountId {
+        AccountId::try_from(self.ft_contract_by_campaign.get(&airdrop_id).unwrap()).unwrap()
+    }
 }
