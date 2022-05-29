@@ -1,7 +1,15 @@
 use crate::*;
 
-const GAS_FOR_FT_TRANSFER: Gas = Gas(15_000_000_000_000);
+const GAS_FOR_FT_TRANSFER: Gas = Gas(250_000_000_000_000);
 const XCC_GAS: Gas = Gas(2_000_000_000_000);
+const DEPOSIT_GAS: Gas = Gas(15_000_000_000_000);
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "near_sdk::serde")]
+pub struct AirdropArgs {
+    pub merkle_root: String,
+    pub ft_account_id: String
+}
 
 #[ext_contract(ext_self)]
 pub trait ExtSelf {
@@ -17,13 +25,6 @@ pub trait FungibleToken {
         amount: U128,
         msg: String,
     ) -> PromiseOrValue<U128>;
-    fn ft_transfer_call(
-        &mut self,
-        receiver_id: String,
-        amount: String,
-        memo: Option<String>,
-        msg: String,
-    ) -> U128;
 }
 
 #[ext_contract(ext_ft_metadata)]
@@ -33,6 +34,28 @@ pub trait FungibleTokenMetadataProvider {
 
 #[near_bindgen]
 impl Contract {
+
+    pub fn ft_on_transfer(&mut self, sender_id: AccountId, amount: U128, msg: String) -> PromiseOrValue<U128> {
+
+        // Parse msg
+        let AirdropArgs { merkle_root, ft_account_id } = near_sdk::serde_json::from_str(&msg).expect("Invalid airdrop arguments");
+        assert!(near_sdk::env::is_valid_account_id(ft_account_id.clone().as_bytes()), "Invalid fungible token contract id");
+
+        self.create_airdrop(merkle_root, ft_account_id);
+        near_sdk::PromiseOrValue::Value(U128(0))
+    }
+
+    pub fn create_airdrop(
+        &mut self,
+        merkle_root: String,
+        ft_account_id: String,
+    ) {
+        let campaign_owner_id = env::predecessor_account_id();
+        let airdrop_id = self.internal_add_campaign_to_account(&campaign_owner_id);
+        self.merkle_roots_by_id.insert(&airdrop_id, &merkle_root);
+        self.internal_add_ft_contract_to_campaign(&airdrop_id, &ft_account_id);
+    }
+
     pub fn get_ft_decimals(&self, airdrop_id: AirdropId) -> PromiseOrValue<U128> {
         ext_ft_metadata::ext(self.get_ft_contract_by_campaign(airdrop_id))
             .with_attached_deposit(1)
@@ -43,19 +66,8 @@ impl Contract {
                     .with_attached_deposit(0)
                     .with_static_gas(XCC_GAS)
                     .callback_decimal(),
-            ).into()
-    }
-
-    pub fn claim_token(&self, airdrop_id: AirdropId, amount: U128) -> Promise {
-        let receiver_id = env::predecessor_account_id();
-        ext_ft::ext(self.get_ft_contract_by_campaign(airdrop_id))
-            .with_attached_deposit(1)
-            .with_static_gas(XCC_GAS)
-            .ft_transfer(
-                receiver_id.clone(),
-                amount,
-                None
             )
+            .into()
     }
 
     #[private]
@@ -75,4 +87,13 @@ impl Contract {
             PromiseResult::Failed => env::panic(b"ERR_CALL_FAILED"),
         }
     }
+
+    pub fn claim_token(&self, airdrop_id: AirdropId, amount: U128) -> Promise {
+        let receiver_id = env::predecessor_account_id();
+        ext_ft::ext(self.get_ft_contract_by_campaign(airdrop_id))
+            .with_attached_deposit(1)
+            .with_static_gas(XCC_GAS)
+            .ft_transfer(receiver_id.clone(), amount, None)
+    }
+
 }

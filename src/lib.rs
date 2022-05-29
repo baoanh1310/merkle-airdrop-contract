@@ -4,6 +4,7 @@ use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
 use near_sdk::collections::{LookupMap, UnorderedMap, UnorderedSet};
 use near_sdk::json_types::U128;
 use near_sdk::serde::{Deserialize, Serialize};
+use near_sdk::utils::assert_one_yocto;
 use near_sdk::{
     env, ext_contract, near_bindgen, AccountId, Balance, Gas, PanicOnDefault, Promise,
     PromiseOrValue, PromiseResult,
@@ -50,19 +51,6 @@ impl Contract {
             spent_list_by_campaign: UnorderedMap::new(b"e"),
             ft_contract_by_campaign: LookupMap::new(b"h"),
         }
-    }
-
-    #[payable]
-    pub fn create_airdrop(
-        &mut self,
-        merkle_root: String,
-        ft_account_id: String,
-        ft_balance: Balance,
-    ) {
-        let campaign_owner_id = env::predecessor_account_id();
-        let airdrop_id = self.internal_add_campaign_to_account(&campaign_owner_id);
-        self.merkle_roots_by_id.insert(&airdrop_id, &merkle_root);
-        self.internal_add_ft_contract_to_campaign(&airdrop_id, &ft_account_id);
     }
 
     #[payable]
@@ -143,50 +131,4 @@ mod tests {
         assert_eq!(contract.total_number_airdrop_campaigns(), U128(0));
     }
 
-    #[test]
-    fn test_create_airdrop() {
-        let context = get_context(false);
-        testing_env!(context.build());
-
-        let mut contract = Contract::new(accounts(1));
-
-        contract.create_airdrop(
-            String::from(SAMPLE_ROOT),
-            accounts(5).to_string(),
-            10000 as u128,
-        );
-        // println!("{:?}", contract.airdrop_campaigns_by_account(accounts(1), Some(U128(0)), Some(10)));
-        assert_eq!(contract.total_number_airdrop_campaigns(), U128(1));
-        assert_eq!(
-            contract.airdrop_merkle_root(1 as u128).unwrap(),
-            String::from(SAMPLE_ROOT),
-            "Merkle root failed"
-        );
-        assert_eq!(
-            contract.number_airdrop_campaigns_by_account(accounts(1)),
-            U128(1),
-            "Num campaign by account failed"
-        );
-        assert_eq!(contract.get_ft_contract_by_campaign(1 as u128), accounts(5));
-    }
-
-    #[test]
-    fn test_claim() {
-        let context = get_context(false);
-        testing_env!(context.build());
-
-        let mut contract = Contract::new(accounts(3));
-
-        contract.create_airdrop(
-            String::from(SAMPLE_ROOT),
-            accounts(2).to_string(),
-            10000 as u128,
-        );
-        // println!("Spent: {:?}", contract.)
-
-        assert_eq!(contract.total_number_airdrop_campaigns(), U128(1));
-        contract.claim(1 as u128, get_other_sample_proof(), 20);
-        assert_eq!(contract.check_issued_account(1 as u128, accounts(1)), true);
-        assert_eq!(contract.check_issued_account(1 as u128, accounts(2)), false);
-    }
 }
