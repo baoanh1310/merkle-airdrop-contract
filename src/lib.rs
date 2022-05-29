@@ -5,8 +5,8 @@ use near_sdk::collections::{LookupMap, UnorderedMap, UnorderedSet};
 use near_sdk::json_types::U128;
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{
-    env, ext_contract, near_bindgen, AccountId, Balance, Gas,
-    PanicOnDefault, Promise, PromiseResult,
+    env, ext_contract, near_bindgen, AccountId, Balance, Gas, PanicOnDefault, Promise,
+    PromiseOrValue, PromiseResult,
 };
 use std::convert::TryFrom;
 
@@ -81,7 +81,7 @@ impl Contract {
 
         self.internal_add_account_to_claimed_list(&airdrop_id);
 
-        // self.claim_token(airdrop_id, user_id, U128(amount));
+        self.claim_token(airdrop_id, U128(amount));
     }
 }
 
