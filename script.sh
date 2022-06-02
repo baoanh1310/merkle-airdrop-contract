@@ -22,3 +22,4 @@ near call merkle1.icebear.testnet new '{"owner_id": "merkle1.icebear.testnet"}' 
 
 # near view ft-ceus.icebear.testnet ft_balance_of '{"account_id": "icebear.testnet"}'
 # near view ft-ceus.icebear.testnet ft_balance_of '{"account_id": "merkle1.icebear.testnet"}'
+# near view merkle1.icebear.testnet get_all_campaigns

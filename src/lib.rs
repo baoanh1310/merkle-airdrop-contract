@@ -1,7 +1,7 @@
 use hex;
 use near_contract_standards::fungible_token::metadata::FungibleTokenMetadata;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::collections::{LookupMap, UnorderedMap, UnorderedSet};
+use near_sdk::collections::{LookupMap, UnorderedMap, UnorderedSet, Vector};
 use near_sdk::json_types::U128;
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::utils::assert_one_yocto;
@@ -130,5 +130,4 @@ mod tests {
         assert_eq!(contract.owner_id, accounts(1));
         assert_eq!(contract.total_number_airdrop_campaigns(), U128(0));
     }
-
 }

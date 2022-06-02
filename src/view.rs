@@ -58,4 +58,13 @@ impl Contract {
     pub fn check_issued_account(&self, airdrop_id: AirdropId, account_id: AccountId) -> bool {
         self.internal_check_issued_account(&airdrop_id, &account_id)
     }
+
+    pub fn get_all_campaigns(&self) -> Vec<AirdropId> {
+        let campaigns = self
+            .spent_list_by_campaign
+            .keys_as_vector()
+            .iter()
+            .collect();
+        campaigns
+    }
 }

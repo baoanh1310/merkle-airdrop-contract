@@ -8,7 +8,7 @@ const DEPOSIT_GAS: Gas = Gas(15_000_000_000_000);
 #[serde(crate = "near_sdk::serde")]
 pub struct AirdropArgs {
     pub merkle_root: String,
-    pub ft_account_id: String
+    pub ft_account_id: String,
 }
 
 #[ext_contract(ext_self)]
@@ -34,22 +34,27 @@ pub trait FungibleTokenMetadataProvider {
 
 #[near_bindgen]
 impl Contract {
-
-    pub fn ft_on_transfer(&mut self, sender_id: AccountId, amount: U128, msg: String) -> PromiseOrValue<U128> {
-
+    pub fn ft_on_transfer(
+        &mut self,
+        sender_id: AccountId,
+        amount: U128,
+        msg: String,
+    ) -> PromiseOrValue<U128> {
         // Parse msg
-        let AirdropArgs { merkle_root, ft_account_id } = near_sdk::serde_json::from_str(&msg).expect("Invalid airdrop arguments");
-        assert!(near_sdk::env::is_valid_account_id(ft_account_id.clone().as_bytes()), "Invalid fungible token contract id");
+        let AirdropArgs {
+            merkle_root,
+            ft_account_id,
+        } = near_sdk::serde_json::from_str(&msg).expect("Invalid airdrop arguments");
+        assert!(
+            near_sdk::env::is_valid_account_id(ft_account_id.clone().as_bytes()),
+            "Invalid fungible token contract id"
+        );
 
         self.create_airdrop(merkle_root, ft_account_id);
         near_sdk::PromiseOrValue::Value(U128(0))
     }
 
-    pub fn create_airdrop(
-        &mut self,
-        merkle_root: String,
-        ft_account_id: String,
-    ) {
+    pub fn create_airdrop(&mut self, merkle_root: String, ft_account_id: String) {
         let campaign_owner_id = env::predecessor_account_id();
         let airdrop_id = self.internal_add_campaign_to_account(&campaign_owner_id);
         self.merkle_roots_by_id.insert(&airdrop_id, &merkle_root);
@@ -95,5 +100,4 @@ impl Contract {
             .with_static_gas(XCC_GAS)
             .ft_transfer(receiver_id.clone(), amount, None)
     }
-
 }

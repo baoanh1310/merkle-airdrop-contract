@@ -18,9 +18,9 @@ impl Contract {
         let mut prefix = Vec::with_capacity(33);
         prefix.push(b's');
         prefix.extend(env::sha256(account_id.as_bytes()));
-        let empty_lookup_map = UnorderedMap::new(prefix);
+        let empty_unordered_map = UnorderedMap::new(prefix);
         self.spent_list_by_campaign
-            .insert(&airdrop_id, &empty_lookup_map);
+            .insert(&airdrop_id, &empty_unordered_map);
         airdrop_id
     }
 
