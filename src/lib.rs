@@ -67,7 +67,11 @@ impl Contract {
             "Your proof is invalid"
         );
 
+        env::log_str("Passed check merkle proof");
+
         self.internal_add_account_to_claimed_list(&airdrop_id);
+
+        env::log_str("Passed insert to claimed list");
 
         self.claim_token(airdrop_id, U128(amount));
     }

@@ -17,7 +17,8 @@ impl Contract {
         // generate prefix for nested LookupMap collection
         let mut prefix = Vec::with_capacity(33);
         prefix.push(b's');
-        prefix.extend(env::sha256(account_id.as_bytes()));
+        // prefix.extend(env::sha256(account_id.as_bytes()));
+        prefix.extend(env::sha256(&airdrop_id.to_ne_bytes()));
         let empty_unordered_map = UnorderedMap::new(prefix);
         self.spent_list_by_campaign
             .insert(&airdrop_id, &empty_unordered_map);
@@ -88,12 +89,15 @@ impl Contract {
         }
 
         user_hash = get_string_from_hash(buf);
+        let log_hash = format!("Decode result: {}", user_hash);
+        env::log_str(log_hash.as_str());
         user_hash == decode_root.clone()
     }
 
     pub(crate) fn internal_add_account_to_claimed_list(&mut self, airdrop_id: &AirdropId) {
         let mut account_map = self.spent_list_by_campaign.get(airdrop_id).unwrap();
         let user_id = env::predecessor_account_id();
+        // env::log_str(user_id.as_str());
         account_map.insert(&user_id, &true);
         self.spent_list_by_campaign.insert(airdrop_id, &account_map);
     }
