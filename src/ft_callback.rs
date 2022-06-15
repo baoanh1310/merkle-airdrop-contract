@@ -25,6 +25,13 @@ pub trait FungibleToken {
         amount: U128,
         msg: String,
     ) -> PromiseOrValue<U128>;
+    fn storage_deposit(&mut self, account_id: AccountId);
+    // near call contract storage_deposit '{}' --accountId alice --amount 0.1
+}
+
+#[ext_contract(ext_storage)]
+pub trait StorageManagement {
+    fn storage_deposit(&mut self, account_id: Option<String>, registration_only: Option<bool>) -> StorageBalance;
 }
 
 #[ext_contract(ext_ft_metadata)]
@@ -95,9 +102,16 @@ impl Contract {
 
     pub fn claim_token(&self, airdrop_id: AirdropId, amount: U128) -> Promise {
         let receiver_id = env::predecessor_account_id();
-        ext_ft::ext(self.get_ft_contract_by_campaign(airdrop_id))
-            .with_attached_deposit(1)
+
+        ext_storage::ext(self.get_ft_contract_by_campaign(airdrop_id))
+            .with_attached_deposit(1250000000000000000000)
             .with_static_gas(XCC_GAS)
-            .ft_transfer(receiver_id.clone(), amount, None)
+            .storage_deposit(Some(receiver_id.to_string().clone()), Some(true))
+            .then(
+                ext_ft::ext(self.get_ft_contract_by_campaign(airdrop_id))
+                    .with_attached_deposit(1)
+                    .with_static_gas(XCC_GAS)
+                    .ft_transfer(receiver_id.clone(), amount, None)
+            )
     }
 }

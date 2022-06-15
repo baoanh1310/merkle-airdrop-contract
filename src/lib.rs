@@ -9,6 +9,7 @@ use near_sdk::{
     env, ext_contract, near_bindgen, AccountId, Balance, Gas, PanicOnDefault, Promise,
     PromiseOrValue, PromiseResult,
 };
+use near_contract_standards::storage_management::StorageBalance;
 use std::convert::TryFrom;
 
 use crate::ft_callback::*;
