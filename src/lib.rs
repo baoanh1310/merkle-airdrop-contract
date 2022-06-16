@@ -55,7 +55,7 @@ impl Contract {
     }
 
     #[payable]
-    pub fn claim(&mut self, airdrop_id: AirdropId, proof: Vec<Proof>, amount: Balance) {
+    pub fn claim(&mut self, airdrop_id: AirdropId, proof: Vec<Proof>, amount: Balance, decimals: u32) {
         let user_id = env::predecessor_account_id();
         let is_issued = self.internal_check_issued_account(&airdrop_id, &user_id);
         assert_eq!(is_issued, false, "{} issued before!", user_id.clone());
@@ -74,7 +74,10 @@ impl Contract {
 
         env::log_str("Passed insert to claimed list");
 
-        self.claim_token(airdrop_id, U128(amount));
+        let ten_pow = u128::pow(10, decimals);
+        let transfer_amount = U128::from(u128::from(ten_pow) * amount);
+
+        self.claim_token(airdrop_id, transfer_amount);
     }
 }
 

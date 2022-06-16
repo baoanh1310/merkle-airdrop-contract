@@ -103,15 +103,19 @@ impl Contract {
     pub fn claim_token(&self, airdrop_id: AirdropId, amount: U128) -> Promise {
         let receiver_id = env::predecessor_account_id();
 
-        ext_storage::ext(self.get_ft_contract_by_campaign(airdrop_id))
-            .with_attached_deposit(1250000000000000000000)
+        // ext_storage::ext(self.get_ft_contract_by_campaign(airdrop_id))
+        //     .with_attached_deposit(1250000000000000000000)
+        //     .with_static_gas(XCC_GAS)
+        //     .storage_deposit(Some(receiver_id.to_string().clone()), Some(true))
+        //     .then(
+        //         ext_ft::ext(self.get_ft_contract_by_campaign(airdrop_id))
+        //             .with_attached_deposit(1)
+        //             .with_static_gas(XCC_GAS)
+        //             .ft_transfer(receiver_id.clone(), amount, None)
+        //     )
+        ext_ft::ext(self.get_ft_contract_by_campaign(airdrop_id))
+            .with_attached_deposit(1)
             .with_static_gas(XCC_GAS)
-            .storage_deposit(Some(receiver_id.to_string().clone()), Some(true))
-            .then(
-                ext_ft::ext(self.get_ft_contract_by_campaign(airdrop_id))
-                    .with_attached_deposit(1)
-                    .with_static_gas(XCC_GAS)
-                    .ft_transfer(receiver_id.clone(), amount, None)
-            )
+            .ft_transfer(receiver_id.clone(), amount, None)
     }
 }

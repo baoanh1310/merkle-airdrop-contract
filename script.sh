@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-# near delete merkle1.icebear.testnet icebear.testnet
+near delete merkle1.icebear.testnet icebear.testnet
 near create-account merkle1.icebear.testnet --masterAccount icebear.testnet --initialBalance 10
 ./build.sh
 near deploy merkle1.icebear.testnet --wasmFile res/merkle_airdrop.wasm
